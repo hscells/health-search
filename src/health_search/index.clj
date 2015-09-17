@@ -7,17 +7,19 @@
 (defn add-to-index
   [name id conn]
   (println name)
-  (esd/create conn "health-search" "document" {:name name :text (slurp name) :timestamp (/ (System/currentTimeMillis) 1000)}))
+  (esd/put conn "health-search" "document" id {:name id :body (slurp name)}))
 
 (defn index-collection
   [options]
   ; connect to the elastic search instance
-  (let [corpus (first options) conn (esr/connect (connection/config :host)) id 0]
+  (let [corpus (first options) conn (esr/connect (connection/config :host)) id 0
+        mapping-types {"document" {:properties {
+                                    :name {:type "string" :store "yes"}
+                                    :text {:type "string" :analyzer "snowball"}}}}]
     (cond
       (nil? corpus) nil
       :else
       (doseq [file (file-seq (io/file corpus))]
         (cond
           (.isDirectory file) nil
-          :else (add-to-index (.getPath file) (str (inc id)) conn))))))
-          ; (add-to-index (.getName file) (inc id) conn))))))
+          :else (add-to-index (.getPath file) (.getName file) conn))))))
