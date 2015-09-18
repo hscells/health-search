@@ -17,10 +17,9 @@ after_script:
   - git add *
   - git commit -m "updated health-search doc"
   - git push --force "https://${GH_TOKEN}@${GH_REF}"
-  - lein uberjar
-
 
 before_deploy:
+  - lein uberjar
   - export RELEASE_PKG_FILE=$(ls target/uberjar/*.jar)
   - echo "deploying $RELEASE_PKG_FILE to GitHub releases"
 deploy:
