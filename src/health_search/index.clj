@@ -5,11 +5,13 @@
             [clojure.java.io :as io]))
 
 (defn add-to-index
+  "Add a document to the index with a name, an id with the elstic search connection"
   [name id conn]
   (println name)
   (esd/put conn "health-search" "document" id {:name id :text (slurp name)}))
 
 (defn index-collection
+  "take a directory and index it on elastic search"
   [options]
   ; connect to the elastic search instance
   (let [corpus (first options) conn (esr/connect (connection/config :host)) id 0
