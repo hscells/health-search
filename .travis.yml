@@ -15,14 +15,19 @@ after_script:
   - lein doc
   - cd hscells.github.io
   - git add *
-  - git commit -m "updated k-means javadoc"
+  - git commit -m "updated health-search doc"
   - git push --force "https://${GH_TOKEN}@${GH_REF}"
   - lein uberjar
 
+
+before_deploy:
+  - export RELEASE_PKG_FILE=$(ls target/uberjar/*.jar)
+  - echo "deploying $RELEASE_PKG_FILE to GitHub releases"
 deploy:
   provider: releases
   api_key:
     secure: Iz7pvNS+uyYes5Q6KBWSSIWjed3MLZBNbM9Wq1jTV3XGHj6S6bYGIH1umUnVdlFvfzlFf30h5XQsRkEuoUQIohpADu4+6v3xt/JaM6gyg7z9J5wbqb3A2Pz+EdMTRiHT348HwHK+QrPSXXXj6VW+/Xyha/44Iv3t7QNiYXUueVLsjF2mbRISOE5AO2YdO7Wn+/ZuYNbkzcN9/U41sej0M8VV7ebCaawSm9I86imQn/A3plniEOs+aCkrFLI4At4HCTVTyuK0xmIdtst/gUsUm0EKHChCxjrj9FNe2GLcaSKV6lWPOQ4Bj8WazPrGIEYY5wrPvZFgBKbPlanXhXpL+K0TD7E1esUJ3aFnTm4n6iC37B8VYZ6YFOoZJ3kGPibwd+7CQEb0apS4Nj3tfkKvfhV9v8xfvJwYuz07TkTgXiWE/Zu7vu7Sat94J7CKbInmuxonlDwjpT+4p4qdlPPyeyW8cLj3uBAu2XRbRFtcKgQ/rGarx0WhZRT3zvaYp6KOUQ8BFwGLhC3WMsQxnJb6y/qp375gAj8JRBOeqk4a5XwhChXGDeaBDUY2Ibw0HhZVjS1RPF8IsKuyT9INbWMTXl2ifzT4HrNiXcSxen2TleeGcoCqjJEqSVbHqKeoiD0TaQhVy1DHoRaRDjqd5wXnGHEi+B15+ui2qINQM98HYuc=
-  file: target/uberjar/health-search-0.1.0-SNAPSHOT-standalone.jar
+  file_glob: true
+  file: "${RELEASE_PKG_FILE}"
   on:
-    repo: hscells/health-search
+    tags: true
