@@ -8,5 +8,5 @@
   :main ^:skip-aot health-search.core
   :target-path "target/%s"
   :plugins [[codox "0.8.13"]]
-  :codox {:output-dir "hscells.github.io/k-means/doc"}
+  :codox {:output-dir "hscells.github.io/health-search/doc"}
   :profiles {:uberjar {:aot :all}})
