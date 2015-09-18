@@ -1,0 +1,28 @@
+language: clojure
+env:
+  global:
+  - GH_REF: github.com/hscells/hscells.github.io.git
+  - GH_TOKEN: gfJrKLd0DAgwZo7p5oLL0rLWJBk3aeELDgLsXq4KzZWVx4sS5NPd6AOb8QdmPnpEJ/y0zV/3fsghO4SXUnx934+Es7+ek8LJfRXV9FDmeDmSkzK/ut88YPIA5NVNK7aZXWHjUF42bernl0m03Pl5yST/4c/X7YoqbtNQhMqKI73n70e3r93AwPRxIP8x88ed+yUaxj8H56Q/2vEFgUfkYLOAuUHdc+qBsoQgW7krKI0JT1hBzoyR+CL8DIwPWlCSSMhXqJdWWSmfxBm/69W+pphptafGh0N1/FCPB234s0lfC1fj3V7UCs6cd2CYYWRfL0qz8aynuhINENsIkbPVifGCLq1Xx4Av8UsN9+2ssRMF5dl9tAajgE3MXUaoP05S4b6UvyOdSRTfVQTa+2au06hmqkEKqJtQXqd9z6g8woStWMPUs7vDWmOEN4r1YPwCVE5QZt8e4B4CEXbJ79AWsKtPxj2tQXoXp5BYR0iYwsoORw8JjG5QWV/lEW7PFS9ClsKd6lOG4J92TrP7F9SsWjwZhtYxF3RUrUEAEq/bE/O9zv/s6g1rzoNfGMykE+D09aDDhLojkcQ3lyWLaQF1RFFS3089uwNhYksMa64MCt7p3KZbHDgNxU41A9ckAXKeQ+7OULlAiPIk5xwMLHyu4v0P6V+ImquHAHklV3/Kyrg=
+  - secure: gfJrKLd0DAgwZo7p5oLL0rLWJBk3aeELDgLsXq4KzZWVx4sS5NPd6AOb8QdmPnpEJ/y0zV/3fsghO4SXUnx934+Es7+ek8LJfRXV9FDmeDmSkzK/ut88YPIA5NVNK7aZXWHjUF42bernl0m03Pl5yST/4c/X7YoqbtNQhMqKI73n70e3r93AwPRxIP8x88ed+yUaxj8H56Q/2vEFgUfkYLOAuUHdc+qBsoQgW7krKI0JT1hBzoyR+CL8DIwPWlCSSMhXqJdWWSmfxBm/69W+pphptafGh0N1/FCPB234s0lfC1fj3V7UCs6cd2CYYWRfL0qz8aynuhINENsIkbPVifGCLq1Xx4Av8UsN9+2ssRMF5dl9tAajgE3MXUaoP05S4b6UvyOdSRTfVQTa+2au06hmqkEKqJtQXqd9z6g8woStWMPUs7vDWmOEN4r1YPwCVE5QZt8e4B4CEXbJ79AWsKtPxj2tQXoXp5BYR0iYwsoORw8JjG5QWV/lEW7PFS9ClsKd6lOG4J92TrP7F9SsWjwZhtYxF3RUrUEAEq/bE/O9zv/s6g1rzoNfGMykE+D09aDDhLojkcQ3lyWLaQF1RFFS3089uwNhYksMa64MCt7p3KZbHDgNxU41A9ckAXKeQ+7OULlAiPIk5xwMLHyu4v0P6V+ImquHAHklV3/Kyrg=
+
+before_script:
+  - git config --global user.email "harryscells@gmail.com"
+  - git config --global user.name "Travis-CI"
+  - git config --global push.default matching
+
+after_script:
+  - git clone https://github.com/hscells/hscells.github.io.git
+  - lein doc
+  - cd hscells.github.io
+  - git add *
+  - git commit -m "updated k-means javadoc"
+  - git push --force "https://${GH_TOKEN}@${GH_REF}"
+  - lein uberjar
+
+deploy:
+  provider: releases
+  api_key:
+    secure: Iz7pvNS+uyYes5Q6KBWSSIWjed3MLZBNbM9Wq1jTV3XGHj6S6bYGIH1umUnVdlFvfzlFf30h5XQsRkEuoUQIohpADu4+6v3xt/JaM6gyg7z9J5wbqb3A2Pz+EdMTRiHT348HwHK+QrPSXXXj6VW+/Xyha/44Iv3t7QNiYXUueVLsjF2mbRISOE5AO2YdO7Wn+/ZuYNbkzcN9/U41sej0M8VV7ebCaawSm9I86imQn/A3plniEOs+aCkrFLI4At4HCTVTyuK0xmIdtst/gUsUm0EKHChCxjrj9FNe2GLcaSKV6lWPOQ4Bj8WazPrGIEYY5wrPvZFgBKbPlanXhXpL+K0TD7E1esUJ3aFnTm4n6iC37B8VYZ6YFOoZJ3kGPibwd+7CQEb0apS4Nj3tfkKvfhV9v8xfvJwYuz07TkTgXiWE/Zu7vu7Sat94J7CKbInmuxonlDwjpT+4p4qdlPPyeyW8cLj3uBAu2XRbRFtcKgQ/rGarx0WhZRT3zvaYp6KOUQ8BFwGLhC3WMsQxnJb6y/qp375gAj8JRBOeqk4a5XwhChXGDeaBDUY2Ibw0HhZVjS1RPF8IsKuyT9INbWMTXl2ifzT4HrNiXcSxen2TleeGcoCqjJEqSVbHqKeoiD0TaQhVy1DHoRaRDjqd5wXnGHEi+B15+ui2qINQM98HYuc=
+  file: target/uberjar/health-search-0.1.0-SNAPSHOT-standalone.jar
+  on:
+    repo: hscells/health-search
