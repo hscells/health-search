@@ -7,7 +7,7 @@
 (defn add-to-index
   [name id conn]
   (println name)
-  (esd/put conn "health-search" "document" id {:name id :body (slurp name)}))
+  (esd/put conn "health-search" "document" id {:name id :text (slurp name)}))
 
 (defn index-collection
   [options]

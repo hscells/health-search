@@ -1,7 +1,8 @@
 (ns health-search.core
   (:gen-class)
-  (:require [health-search.index :as index]
-            [clojure.string :as string]))
+  (:require [health-search.index  :as index]
+            [health-search.query  :as query]
+            [clojure.string       :as string]))
 
 (def usage
   (->> ["Health serach engine for INB344 at QUT"
@@ -26,4 +27,5 @@
       (let [arg (first args) options (rest args)]
         (case arg
           "index" (index/index-collection options)
+          "query" (query/search (first options))
           (exit 1 usage)))))
