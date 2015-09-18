@@ -1,36 +1,26 @@
 # health-search
 
-FIXME: description
+This is the project for INB344's main project. The project is to develop a search engine which will retrieve health-related documents based on queries. It is implemented in clojure using the `elastisch` library, which means the search engine backend is elastic search.
+
+Configuration of the project is dine through the `config.edn` file.
 
 ## Installation
 
-Download from http://example.com/FIXME.
+Download from TBD
 
 ## Usage
 
-FIXME: explanation
-
-    $ java -jar health-search-0.1.0-standalone.jar [args]
+    $ java -jar health-search-0.1.0-standalone.jar [action] [options]
 
 ## Options
 
-FIXME: listing of options this app accepts.
-
-## Examples
-
-...
-
-### Bugs
-
-...
-
-### Any Other Sections
-### That You Think
-### Might be Useful
+```
+index [path to document collection]
+query [search term]
+```
 
 ## License
 
-Copyright © 2015 FIXME
+Copyright © 2015 Harry Scells
 
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
+Distributed under the MIT License.
