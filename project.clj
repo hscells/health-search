@@ -7,4 +7,6 @@
                  [clojurewerkz/elastisch "2.1.0"]]
   :main ^:skip-aot health-search.core
   :target-path "target/%s"
+  :plugins [[codox "0.8.13"]]
+  :codox {:output-dir "hscells.github.io/k-means/doc"}
   :profiles {:uberjar {:aot :all}})
