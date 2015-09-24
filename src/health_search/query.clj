@@ -10,7 +10,7 @@
   [query]
   (println "query:" query)
   (let [conn  (esr/connect (connection/config :host))
-        res   (esd/search conn "health-search" "document" :query (q/query-string :query query :default_operator "AND"))
+        res   (esd/search conn "health-search" "document" :query (q/query-string :query query :default_operator "OR"))
         n     (esrsp/total-hits res)
         hits  (esrsp/hits-from res)]
     (println "hits: " n)

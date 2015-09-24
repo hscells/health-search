@@ -17,7 +17,7 @@
   (let [corpus (first options) conn (esr/connect (connection/config :host)) id 0
         mapping-types {"document" {:properties {
                                     :name {:type "string" :store "yes"}
-                                    :text {:type "string" :analyzer "snowball"}}}}]
+                                    :text {:type "string" :index "BM25"}}}}]
     (cond
       (nil? corpus) nil
       :else

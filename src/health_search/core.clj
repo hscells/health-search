@@ -11,6 +11,7 @@
         ""
         "Actions:"
         "  index    Index a corpus"
+        "  query    Query for a string"
         ""
         "Please refer to the manual page for more information."]
        (string/join \newline)))
