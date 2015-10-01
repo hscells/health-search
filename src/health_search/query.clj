@@ -34,8 +34,9 @@
 
 (defn expand-dice
   "query expansion function using Dice-coefficient"
-  [terms]
-  (map ))
+  [terms bag]
+  ;; naiive implementation...
+  (map dice terms bag))
 
 (defn expand-query
   "given a query string, apply a query expanding function to it"
