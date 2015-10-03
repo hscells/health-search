@@ -38,7 +38,7 @@
                                                                      :type         "custom"
                                                                      :tokenizer    "standard"
                                                                      :char_filter  "html_strip"
-                                                                     :filter       ["standard" "lowercase"]}}}}}
+                                                                     :filter       ["standard" "lowercase" "snowball"]}}}}}
             :mappings {
               :document {
                 :_all {:enabled "true"}
