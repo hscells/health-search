@@ -48,13 +48,19 @@
   [query]
   (println "query:" query)
   (let [conn  (esr/connect (connection/config :host))
-        res   (esd/search conn "health-search" "document" :query (q/query-string :query query :default_operator "OR"))
+        res   (esd/search conn "health-search" "document"
+          :query (q/query-string :query query :default_operator "OR")
+          ; :query (q/term :text query)
+          :facets {:tags {:terms {:field :text}}})
         n     (esrsp/total-hits res)
         hits  (esrsp/hits-from res)
         ids (map #(get % :_id) hits)
         scores (map #(get % :_score) hits)
         titles (map #(get (get % :title) :_source) hits)
+        facets (esrsp/facets-from res)
         ]
     (println "hits: " n)
     (dotimes [i (count scores)]
-      (println (nth scores i) (nth titles i) (nth ids i)))))
+      (println (nth scores i) (nth titles i) (nth ids i)))
+    (println "related terms:")
+    (pp/pprint facets)))
