@@ -43,7 +43,7 @@
               :document {
                 :_all {:enabled "true"}
                 :properties {
-                  :text  {:type "string" :analyzer "custom_health" :search_analyzer "custom_health" :store "no" :index "analyzed"}
+                  :text  {:type "string" :analyzer "custom_health" :search_analyzer "custom_health" :store "no" :index "analyzed" :similarity "BM25"}
                   :title {:type "string"}}}})
     (cond
       (nil? corpus) nil
