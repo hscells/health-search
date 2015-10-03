@@ -50,6 +50,11 @@
   (let [conn  (esr/connect (connection/config :host))
         res   (esd/search conn "health-search" "document" :query (q/query-string :query query :default_operator "OR"))
         n     (esrsp/total-hits res)
-        hits  (esrsp/hits-from res)]
+        hits  (esrsp/hits-from res)
+        ids (map #(get % :_id) hits)
+        scores (map #(get % :_score) hits)
+        titles (map #(get (get % :title) :_source) hits)
+        ]
     (println "hits: " n)
-    (pp/pprint hits)))
+    (dotimes [i (count scores)]
+      (println (nth scores i) (nth titles i) (nth ids i)))))
