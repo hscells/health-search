@@ -1,0 +1,7 @@
+es:
+  image: elasticsearch
+  ports:
+   - "9200:9200"
+   - "9300:9300"
+  volumes:
+   - /Users/$USERNAME/Projects/es-docker/data:/usr/share/elasticsearch/data
