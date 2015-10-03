@@ -15,7 +15,7 @@
 (defn prob
   "calculate the probability of n grams x and y in terms n"
   [x y n]
-  (/ (+ (count (filter x n) (count (filter y n)))) (count n)))
+  (/ (+ (count (filter x n)) (count (filter y n))) (count n)))
 
 (defn dice
   "implementation of Dice-coefficient"
@@ -30,7 +30,7 @@
 (defn emim
   "implementation of Expected Mutual Information Measure"
   [a b n]
-  (* (prob a b n) (pmi a b n))
+  (* (prob a b n) (pmi a b n)))
 
 (defn expand-dice
   "query expansion function using Dice-coefficient"
