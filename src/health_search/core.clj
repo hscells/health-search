@@ -28,5 +28,6 @@
       (let [arg (first args) options (rest args)]
         (case arg
           "index" (index/index-collection options)
-          "query" (query/search (first options))
+          ; "query" (apply query/print-search (query/search (first options)))
+          "query" (query/expanded-search (first options))
           (exit 1 usage)))))
