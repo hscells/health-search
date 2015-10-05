@@ -59,5 +59,11 @@
            :char_filter  "html_strip"
            :filter       ["standard" "lowercase" "snowball"]}}) hits)
         documents (map #(get-terms %) (map #(get % :tokens) doc-source))
-        expanded-terms (str/join " " (distinct (flatten (for [document documents :let [terms (expand-emim (str/split query #" ") document)]] terms))))]
-    (println expanded-terms)))
+        expanded-query (str/join " " (distinct (flatten (for [document documents :let [terms (expand-emim (str/split query #" ") document)]] terms))))
+        medical-term (model/chv-term query)]
+    ;; we have the list of terms which emim found were similar in similar documents
+    ;; now we look up to see if the query is in the CHV, and if it is, replace it in the query
+    (cond
+      (nil? medical-term) expanded-query)
+      :else
+        (str/replace expanded-query query medical-term)))
