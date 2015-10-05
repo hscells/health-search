@@ -1,5 +1,6 @@
 (ns health-search.model
-  (:require [clojure.edn :as edn]))
+  (:require [clojure.edn        :as edn]
+            [clojure.data.csv   :as csv]))
 
 (defn prob
   "calculate the probability of n gram x in terms n"
@@ -24,3 +25,13 @@
 (def inputs
   "read the properties from the model.edn file and make them available in the program"
   (edn/read-string (slurp "model.edn")))
+
+(def chv
+  "access terms in the Consumer Health Vocabulary"
+  (let [data (csv/read-csv (slurp "data/CHV_concepts_terms.tsv") :separator \tab)]
+    (apply merge (map #(hash-map (nth % 1) (nth % 3)) data))))
+
+(defn chv-term
+  "perform a lookup of term in the chv dataset"
+  [term]
+  (get chv term))
