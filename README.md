@@ -6,7 +6,7 @@ Configuration of the project is dine through the `config.edn` file.
 
 ## Installation
 
-Download from TBD
+Once elasticsearch is installed, edit `elasticserach.yml` and configure `http.max_initial_line_length` to be something higher than 4kb.
 
 ## Usage
 
