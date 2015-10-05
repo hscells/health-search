@@ -29,5 +29,5 @@
         (case arg
           "index" (index/index-collection options)
           ; "query" (apply query/print-search (query/search (first options)))
-          "query" (query/expanded-search (first options))
+          "query" (println (query/expanded-search (first options)))
           (exit 1 usage)))))

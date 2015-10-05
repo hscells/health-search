@@ -61,9 +61,15 @@
         documents (map #(get-terms %) (map #(get % :tokens) doc-source))
         expanded-query (str/join " " (distinct (flatten (for [document documents :let [terms (expand-emim (str/split query #" ") document)]] terms))))
         medical-term (model/chv-term query)]
-    ;; we have the list of terms which emim found were similar in similar documents
-    ;; now we look up to see if the query is in the CHV, and if it is, replace it in the query
-    (cond
-      (nil? medical-term) expanded-query)
-      :else
-        (str/replace expanded-query query medical-term)))
+        ;; we have the list of terms which emim found were similar in similar documents
+        ;; now we look up to see if the query is in the CHV, and if it is, replace it in the expanded query
+        (cond
+          ;; the query didn't get expanded but a medical replacement was found
+          (and (str/blank? expanded-query) (not (nil? medical-term))) medical-term
+          ;; there was no medical term replacement
+          (nil? medical-term) expanded-query
+          ;; the query couldn't get expanded at all
+          (str/blank? expanded-query) query
+          :else
+            ;; there was a medical term replacement and the query was expanded
+            (str/replace expanded-query query medical-term))))
