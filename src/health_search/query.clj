@@ -1,5 +1,6 @@
 (ns health-search.query
   (:require [health-search.connection             :as connection]
+            [health-search.model                  :as model]
             [clojurewerkz.elastisch.rest          :as esr]
             [clojurewerkz.elastisch.rest.document :as esd]
             [clojurewerkz.elastisch.query         :as q]
@@ -7,36 +8,17 @@
             [clojure.string                       :as str]
             [clojure.pprint :as pp]))
 
-(defn prob
-  "calculate the probability of n gram x in terms n"
-  ([x n]
-  (float (/ (count (filter #{x} n)) (count n))))
-  ([x y n]
-  (float (/ (+ (count (filter #{x} n)) (count (filter #{y} n))) (count n)))))
-
-(defn pmi
-  "implementation of Pointwise Mututal Information"
-  [a b n]
-  (cond
-    (zero? (* (prob a n) (prob b n))) 0
-    :else
-    (Math/log (/ (prob a b n) (* (prob a n) (prob b n))))))
-
-(defn emim
-  "implementation of Expected Mutual Information Measure"
-  [a b n]
-  (* (prob a b n) (pmi a b n)))
-
 (defn expand-emim
   "query expansion function using Dice-coefficient"
   ([query-terms document-terms] (expand-emim query-terms document-terms query-terms))
   ([query-terms document-terms expanded-terms]
     (cond
-      (empty? query-terms) expanded-terms
+      (empty? query-terms) (distinct (flatten expanded-terms))
       :else
         ; only append a term to the query when the two terms are dependent
         (recur (rest query-terms) document-terms
-          (conj expanded-terms (for [term document-terms :let [expand-term term] :when (> 0.5 (emim (first query-terms) term document-terms))] expand-term))))))
+          ; use the emim formula to filter terms above the emim-prob value
+          (conj expanded-terms (for [term document-terms :let [expand-term term] :when (> (model/emim (first query-terms) term document-terms) (model/inputs :emim-prob))] expand-term))))))
 
 (defn print-search
   "print the results from the serach nicely"
@@ -76,7 +58,6 @@
            :tokenizer    "standard"
            :char_filter  "html_strip"
            :filter       ["standard" "lowercase" "snowball"]}}) hits)
-        documents (map #(get-terms %) (map #(get % :tokens) doc-source))]
-    (doseq [document documents]
-      (println (expand-emim (str/split query #" ") document)))))
-    ; (search (expand-emim (str/split query #" ") doc-terms))))
+        documents (map #(get-terms %) (map #(get % :tokens) doc-source))
+        expanded-terms (str/join " " (distinct (flatten (for [document documents :let [terms (expand-emim (str/split query #" ") document)]] terms))))]
+    (println expanded-terms)))
