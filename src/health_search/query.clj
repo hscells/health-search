@@ -22,9 +22,9 @@
 
 (defn print-search
   "print the results from the serach nicely"
-  [hits scores titles ids]
-  (dotimes [i (count scores)]
-    (println (nth scores i) (nth titles i) (nth ids i))))
+  [search-results]
+  (dotimes [i (count (get search-results :scores))]
+    (println (nth (get search-results :scores) i) (nth (get search-results :titles) i) (nth (get search-results :ids) i))))
 
 (defn search
   "perform a basic search using query strings"
