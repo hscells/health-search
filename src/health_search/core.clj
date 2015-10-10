@@ -1,8 +1,9 @@
 (ns health-search.core
   (:gen-class)
-  (:require [health-search.index  :as index]
-            [health-search.query  :as query]
-            [clojure.string       :as string]))
+  (:require [health-search.index        :as index]
+            [health-search.query        :as query]
+            [health-search.queryeval    :as queryeval]
+            [clojure.string             :as string]))
 
 (def usage
   (->> ["Health serach engine for INB344 at QUT"
@@ -10,8 +11,9 @@
         "Usage: health-search [action] [options]"
         ""
         "Actions:"
-        "  index    Index a corpus"
-        "  query    Query for a string"
+        "  index        Index a corpus"
+        "  query        Query for a string"
+        "  bulk-query   Use a file for input as the search and produce a file with qrel output"
         ""
         "Please refer to the manual page for more information."]
        (string/join \newline)))
@@ -31,4 +33,5 @@
           ; "query" (apply query/print-search (query/search (first options)))
           ; "query" (println (query/expanded-search (first options)))
           "query" (query/print-search (query/search (query/expanded-search (first options))))
+          "bulk-query" (queryeval/search (first options) (second options))
           (exit 1 usage)))))
