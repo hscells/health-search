@@ -6,7 +6,7 @@
             [clojurewerkz.elastisch.query         :as q]
             [clojurewerkz.elastisch.rest.response :as esrsp]
             [clojure.string                       :as str]
-            [clojure.pprint :as pp]))
+            [clojure.pprint                       :as pp]))
 
 (defn expand-emim
   "query expansion function using Dice-coefficient"
@@ -18,7 +18,8 @@
         ; only append a term to the query when the two terms are dependent
         (recur (rest query-terms) document-terms
           ; use the emim formula to filter terms above the emim-prob value
-          (conj expanded-terms (for [term document-terms :let [expand-term term] :when (> (model/emim (first query-terms) term document-terms) (model/inputs :emim-prob))] expand-term))))))
+          (conj expanded-terms
+            (for [term document-terms :let [expand-term term] :when (> (model/emim (first query-terms) term document-terms) (model/inputs :emim-prob))] expand-term))))))
 
 (defn print-search
   "print the results from the serach nicely"
