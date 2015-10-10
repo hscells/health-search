@@ -15,8 +15,9 @@ Once elasticsearch is installed, edit `elasticserach.yml` and configure `http.ma
 ## Options
 
 ```
-index [path to document collection]
-query [search term]
+index        [path to document collection]
+query        [search term]
+bulk-query   [input queries] [optional output file]
 ```
 
 ## License
