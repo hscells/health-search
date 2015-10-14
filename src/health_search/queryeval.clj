@@ -5,8 +5,8 @@
 
 (defn create-qrel
   "Create the file needed for trec_eval to evaluate"
-  [filename query id relevance]
-    (spit filename (str query \tab 0 \tab id \tab relevance \newline) :append true))
+  [filename query id relevance iter]
+    (spit filename (str (str/replace query #":" "") \tab "Q0" \tab id \tab iter \tab relevance \tab "banana" \newline) :append true))
 
 (defn bulk-search
   ([input]
@@ -25,6 +25,6 @@
   ([input] (search input "results.qrel"))
   ([input output]
     (spit output "")
-    (doseq [query-result (bulk-search input)]
-      (doseq [qrel query-result]
-        (create-qrel output (get qrel :query) (get qrel :id) (get qrel :relevance))))))
+      (doseq [query-result (bulk-search input)]
+          (doseq [qrel query-result]
+            (create-qrel output (get qrel :query) (get qrel :id) (get qrel :relevance) 0)))))
