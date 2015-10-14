@@ -24,7 +24,7 @@
   "Performs a bulk search on input and outputs the results in output, or results.qrel if none specified"
   ([input] (search input "results.qrel"))
   ([input output]
-    (spit output "HI")
+    (spit output "")
     (doseq [query-result (bulk-search input)]
       (doseq [qrel query-result]
         (create-qrel output (get qrel :query) (get qrel :id) (get qrel :relevance))))))
