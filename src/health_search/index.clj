@@ -26,14 +26,14 @@
   [name id conn]
   (println name)
   (let [html (slurp name)]
-    (esd/put conn "health-search" "document" id {:title (get (first (html/select (html/html-resource (java.io.StringReader. html)) [:title])) :content) :text (extract-text html)})))
+    (esd/put conn (connection/config :index-name) "document" id {:title (get (first (html/select (html/html-resource (java.io.StringReader. html)) [:title])) :content) :text (extract-text html)})))
 
 (defn index-collection
   "take a directory and index it on elastic search"
   [options]
   ; connect to the elastic search instance
   (let [corpus (first options) conn (esr/connect (connection/config :host))]
-    (esi/create conn "health-search"
+    (esi/create conn (connection/config :index-name)
             :settings {:index {:analysis {:analyzer {:custom_health {
                                                                      :type         "custom"
                                                                      :tokenizer    "standard"

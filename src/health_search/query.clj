@@ -31,7 +31,7 @@
   "perform a basic search using query strings"
   [query]
   (let [conn  (esr/connect (connection/config :host))
-        res   (esd/search conn "health-search" "document"
+        res   (esd/search conn (connection/config :index-name) "document"
           :query (q/query-string :query query :default_operator "OR"))
         n     (esrsp/total-hits res)
         hits  (esrsp/hits-from res)
