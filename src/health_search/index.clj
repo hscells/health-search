@@ -1,5 +1,6 @@
 (ns health-search.index
   (:require [health-search.connection             :as connection]
+            [health-search.model                  :as model]
             [clojurewerkz.elastisch.rest          :as esr]
             [clojurewerkz.elastisch.rest.document :as esd]
             [clojurewerkz.elastisch.rest.index    :as esi]
@@ -43,7 +44,10 @@
               :document {
                 :_all {:enabled "true"}
                 :properties {
-                  :text  {:type "string" :analyzer "custom_health" :search_analyzer "custom_health" :store "no" :index "analyzed" :similarity "BM25"}
+                  :text  {:type "string" :analyzer "custom_health" :search_analyzer "custom_health" :store "no" :index "analyzed" :similarity {
+                    :type "BM25"
+                    :b    (model/inputs :bm25-b)
+                    :k1   (model/inputs :bm25-k1)}}
                   :title {:type "string"}}}})
     (cond
       (nil? corpus) nil
