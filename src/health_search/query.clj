@@ -99,11 +99,11 @@
       (cond
         (empty? terms) mapping
         (zero? prob-cw)
-          (recur (rest terms) query (assoc-in mapping [:must_not (count (get mapping :must_not))] {:term {:text (first terms)}}) document-terms)
+          (recur (rest terms) query (assoc-in mapping [:must_not (count (get mapping :must_not))] {:term {:text (str (first terms))}}) document-terms)
         (> prob-cw (model/inputs :concept-weighting))
-          (recur (rest terms) query (assoc-in mapping [:must (count (get mapping :must))] {:term {:text (first terms)}}) document-terms)
+          (recur (rest terms) query (assoc-in mapping [:must (count (get mapping :must))] {:term {:text (str (first terms))}}) document-terms)
         :else
-          (recur (rest terms) query (assoc-in mapping [:should (count (get mapping :should))] {:term {:text (first terms)}}) document-terms)))))
+          (recur (rest terms) query (assoc-in mapping [:should (count (get mapping :should))] {:term {:text (str (first terms))}}) document-terms)))))
 
 (defn cw-query
   "Perform a Concept Weighted query using a Boolean Query"
@@ -111,10 +111,10 @@
   (let [conn      (esr/connect (connection/config :host))
         doc-terms (get-document-terms query)
         cwq       (weight-query query doc-terms)
-        res       (esd/search conn (connection/config :index-name) "document" :query {:bool {:must "algorithm"}})
+        res       (esd/search conn (connection/config :index-name) "document" :query {:bool cwq})
         hits      (esrsp/hits-from res)
         ids       (map #(get % :_id) hits)
         scores    (map #(get % :_score) hits)
         titles    (map #(get (get % :title) :_source) hits)]
-      (println hits)
+      (println cwq)
       (hash-map :hits hits :scores scores :titles titles :ids ids)))
