@@ -1,14 +1,16 @@
 (ns health-search.queryeval
+  "Used to generate a results file compaitble with trec_eval"
   (:require [clojure.string       :as str]
             [clojure.edn          :as edn]
             [health-search.query  :as query]))
 
-(defn create-qrel
-  "Create the file needed for trec_eval to evaluate"
+(defn create-results-file
+  "Create the results file needed for trec_eval to evaluate"
   [filename query id relevance iter]
     (spit filename (str (str/replace query #":" "") \tab "Q0" \tab (str (str/replace id #".html" "")) \tab iter \tab relevance \tab "banana" \newline) :append true))
 
 (defn bulk-search
+  "given an input file, create an internal results file representation to be written out later"
   ([input]
     (let [data (reverse (into (sorted-map) (edn/read-string (slurp input))))]
       (bulk-search data (list))))
@@ -21,10 +23,10 @@
         (conj hits (map #(hash-map :query (key (first data)) :id (get % :_id) :relevance (get % :_score)) (get (query/search (val (first data))) :hits)))))))
 
 (defn search
-  "Performs a bulk search on input and outputs the results in output, or results.qrel if none specified"
-  ([input] (search input "results.qrel"))
+  "Performs a bulk search on input and outputs the results in output, or results.dat if none specified"
+  ([input] (search input "results.dat"))
   ([input output]
     (spit output "")
       (doseq [query-result (bulk-search input)]
           (doseq [qrel query-result]
-            (create-qrel output (get qrel :query) (get qrel :id) (get qrel :relevance) 0)))))
+            (create-results-file output (get qrel :query) (get qrel :id) (get qrel :relevance) 0)))))

@@ -1,4 +1,5 @@
 (ns health-search.index
+  "Functions related to creating an elastic search index"
   (:require [health-search.connection             :as connection]
             [health-search.model                  :as model]
             [clojurewerkz.elastisch.rest          :as esr]

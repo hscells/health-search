@@ -1,4 +1,5 @@
 (ns health-search.connection
+  "Utility class which provides access to configuration settings at run time of the application"
   (:require [clojure.edn :as edn]))
 
 (def config

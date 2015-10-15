@@ -1,4 +1,5 @@
 (ns health-search.core
+  "Entrypoint to the application, providing command line utilities"
   (:gen-class)
   (:require [health-search.index        :as index]
             [health-search.query        :as query]
@@ -32,6 +33,6 @@
           "index" (index/index-collection options)
           ; "query" (apply query/print-search (query/search (first options)))
           ; "query" (println (query/expanded-search (first options)))
-          "query" (query/print-search (query/search (query/expanded-search (first options))))
+          "query" (query/print-search (query/search (query/expand-query (first options))))
           "bulk-query" (queryeval/search (first options) (second options))
           (exit 1 usage)))))

@@ -1,4 +1,5 @@
 (ns health-search.query
+  "Perform various query and search related actions"
   (:require [health-search.connection             :as connection]
             [health-search.model                  :as model]
             [clojurewerkz.elastisch.rest          :as esr]
@@ -41,6 +42,7 @@
     (hash-map :hits hits :scores scores :titles titles :ids ids)))
 
 (defn get-terms
+  "given a set of terms from a set of documents from a search, return just the terms themselves and not the associated data"
   ([document-terms] (get-terms document-terms (list)))
   ([document-terms terms]
     (cond
@@ -48,8 +50,8 @@
       :else
         (recur (rest document-terms) (conj terms (get (first document-terms) :token))))))
 
-(defn expanded-search
-  "perform a search using an expanded query. The expanded query is calculated using terms from similar documents"
+(defn expand-query
+  "given a query, expand it using a combination of emim probability using documents from a standard search and a medica vocabulary"
   [query]
   (let [conn  (esr/connect (connection/config :host))
         results (search query)
@@ -73,4 +75,4 @@
           (str/blank? expanded-query) query
           :else
             ;; there was a medical term replacement and the query was expanded
-            (str/replace expanded-query query medical-term))))
+            (str/join #" " expanded-query query medical-term))))

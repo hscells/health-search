@@ -1,4 +1,5 @@
 (ns health-search.model
+  "Provide statistical and vocabulary functions relating to the models used in the application"
   (:require [clojure.edn        :as edn]
             [clojure.data.csv   :as csv]))
 
