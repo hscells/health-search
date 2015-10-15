@@ -6,11 +6,11 @@
 (defn create-qrel
   "Create the file needed for trec_eval to evaluate"
   [filename query id relevance iter]
-    (spit filename (str (str/replace query #":" "") \tab "Q0" \tab id \tab iter \tab relevance \tab "banana" \newline) :append true))
+    (spit filename (str (str/replace query #":" "") \tab "Q0" \tab (str (str/replace id #".html" "")) \tab iter \tab relevance \tab "banana" \newline) :append true))
 
 (defn bulk-search
   ([input]
-    (let [data (edn/read-string (slurp input))]
+    (let [data (reverse (into (sorted-map) (edn/read-string (slurp input))))]
       (bulk-search data (list))))
   ([data hits]
     (cond
