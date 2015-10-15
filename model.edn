@@ -1,5 +1,6 @@
 {
-  :emim-prob    0.5
-  :bm25-b       0.75
-  :bm25-k1      0.5
+  :emim-prob          0.0
+  :bm25-b             0.75
+  :bm25-k1            0.5
+  :concept-weighting  0.02
 }
