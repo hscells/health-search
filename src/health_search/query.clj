@@ -50,6 +50,19 @@
       :else
         (recur (rest document-terms) (conj terms (get (first document-terms) :token))))))
 
+(defn get-document-terms
+  [query]
+  (let [conn  (esr/connect (connection/config :host))
+        results (search query)
+        hits (get results :hits)
+        doc-source (map #(esd/analyze conn (get (get % :_source) :text) :analyzer {:custom_health {
+           :type         "custom"
+           :tokenizer    "standard"
+           :char_filter  "html_strip"
+           :filter       ["standard" "lowercase" "snowball"]}}) hits)
+        documents (map #(get-terms %) (map #(get % :tokens) doc-source))]
+      (flatten documents)))
+
 (defn expand-query
   "given a query, expand it using a combination of emim probability using documents from a standard search and a medica vocabulary"
   [query]
@@ -68,11 +81,40 @@
         ;; now we look up to see if the query is in the CHV, and if it is, replace it in the expanded query
         (cond
           ;; the query didn't get expanded but a medical replacement was found
-          (and (str/blank? expanded-query) (not (nil? medical-term))) medical-term
+          (and (str/blank? expanded-query) (not (nil? medical-term))) (apply str [query medical-term])
           ;; there was no medical term replacement
           (nil? medical-term) expanded-query
           ;; the query couldn't get expanded at all
           (str/blank? expanded-query) query
           :else
             ;; there was a medical term replacement and the query was expanded
-            (str/join #" " expanded-query query medical-term))))
+            (apply str [expanded-query medical-term]))))
+
+(defn weight-query
+  "weight-query will take a query and weight it into two classes: KC (key concepts class) and NKC (non-key concepts class)"
+  ([query document-terms] (weight-query (str/split query #" ") query {:must [] :should [] :must_not []} document-terms))
+  ([terms query mapping document-terms]
+    (let [prob-cw (model/weight-concept (first terms) query document-terms)]
+      (println prob-cw (first terms))
+      (cond
+        (empty? terms) mapping
+        (zero? prob-cw)
+          (recur (rest terms) query (assoc-in mapping [:must_not (count (get mapping :must_not))] {:term {:text (first terms)}}) document-terms)
+        (> prob-cw (model/inputs :concept-weighting))
+          (recur (rest terms) query (assoc-in mapping [:must (count (get mapping :must))] {:term {:text (first terms)}}) document-terms)
+        :else
+          (recur (rest terms) query (assoc-in mapping [:should (count (get mapping :should))] {:term {:text (first terms)}}) document-terms)))))
+
+(defn cw-query
+  "Perform a Concept Weighted query using a Boolean Query"
+  [query]
+  (let [conn      (esr/connect (connection/config :host))
+        doc-terms (get-document-terms query)
+        cwq       (weight-query query doc-terms)
+        res       (esd/search conn (connection/config :index-name) "document" :query {:bool {:must "algorithm"}})
+        hits      (esrsp/hits-from res)
+        ids       (map #(get % :_id) hits)
+        scores    (map #(get % :_score) hits)
+        titles    (map #(get (get % :title) :_source) hits)]
+      (println hits)
+      (hash-map :hits hits :scores scores :titles titles :ids ids)))
