@@ -1,8 +1,15 @@
 (ns health-search.model
   "Provide statistical and vocabulary functions relating to the models used in the application"
   (:require [clojure.edn        :as edn]
+            [clojure.string     :as str]
             [clojure.data.csv   :as csv]))
 
+;; inputs used to tune the models
+(def inputs
+  "read the properties from the model.edn file and make them available in the program"
+  (edn/read-string (slurp "model.edn")))
+
+;; probability related functions
 (defn prob
   "calculate the probability of n gram x in terms n"
   ([x n]
@@ -23,9 +30,8 @@
   [a b n]
   (* (prob a b n) (pmi a b n)))
 
-(def inputs
-  "read the properties from the model.edn file and make them available in the program"
-  (edn/read-string (slurp "model.edn")))
+
+;; Vocabulary related functions
 
 (def chv
   "access terms in the Consumer Health Vocabulary"
@@ -36,3 +42,16 @@
   "perform a lookup of term in the chv dataset"
   [term]
   (get chv term))
+
+
+;; the following takes inspiration from http://maroo.cs.umass.edu/pdf/IR-651.pdf
+(defn h_k
+  "The function h_k which indicates the `confidence` that concept c_i belongs to class KC
+  For now, it just uses log normalised tf."
+  [c_i document-terms]
+  (Math/log (+ 1 (prob c_i document-terms))))
+
+(defn weight-concept
+  "weight a concept inside a given query"
+  [concept query document-terms]
+  (/ (h_k concept document-terms) (reduce + (map #(h_k % document-terms) (str/split query #" ")))))
