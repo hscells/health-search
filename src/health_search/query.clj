@@ -90,9 +90,9 @@
             ;; there was a medical term replacement and the query was expanded
             (apply str [expanded-query medical-term]))))
 
-(defn weight-query
+(defn weight-query-binary
   "weight-query will take a query and weight it into two classes: KC (key concepts class) and NKC (non-key concepts class)"
-  ([query document-terms] (weight-query (str/split query #" ") query {:must [] :should [] :must_not []} document-terms))
+  ([query document-terms] (weight-query-binary (str/split query #" ") query {:must [] :should [] :must_not []} document-terms))
   ([terms query mapping document-terms]
     (let [prob-cw (model/weight-concept (first terms) query document-terms)]
       (println prob-cw (first terms))
@@ -105,13 +105,24 @@
         :else
           (recur (rest terms) query (assoc-in mapping [:should (count (get mapping :should))] {:term {:text (str (first terms))}}) document-terms)))))
 
+(defn weight-query-term
+  "weight-query will take a query and weight it based on modified TF"
+  ([query document-terms] (weight-query-term (str/split query #" ") query [] document-terms))
+  ([terms query mapping document-terms]
+    (let [prob-cw (model/weight-concept (first terms) query document-terms)]
+      (println prob-cw (first terms))
+      (cond
+        (empty? terms) mapping
+        :else
+          (recur (rest terms) query (conj mapping {:filter {:term {:text (str (first terms))}} :weight prob-cw}) document-terms)))))
+
 (defn cw-query
   "Perform a Concept Weighted query using a Boolean Query"
   [query]
   (let [conn      (esr/connect (connection/config :host))
         doc-terms (get-document-terms query)
-        cwq       (weight-query query doc-terms)
-        res       (esd/search conn (connection/config :index-name) "document" :query {:bool cwq})
+        cwq       (weight-query-term query doc-terms)
+        res       (esd/search conn (connection/config :index-name) "document" :query {:function_score {:query (q/query-string :query query :default_operator "OR") :functions cwq}} :size 20)
         hits      (esrsp/hits-from res)
         ids       (map #(get % :_id) hits)
         scores    (map #(get % :_score) hits)
