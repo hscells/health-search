@@ -28,7 +28,7 @@
   [name id conn]
   (println name)
   (let [html (slurp name)]
-    (esd/put conn (connection/config :index-name) "document" id {:title (get (first (html/select (html/html-resource (java.io.StringReader. html)) [:title])) :content) :text (extract-text html)})))
+    (esd/put conn (connection/config :index-name) "document" id {:text (extract-text html)})))
 
 (defn index-collection
   "take a directory and index it on elastic search"
@@ -48,8 +48,7 @@
                   :text  {:type "string" :analyzer "custom_health" :search_analyzer "custom_health" :store "no" :index "analyzed" :similarity {
                     :type "BM25"
                     :b    (model/inputs :bm25-b)
-                    :k1   (model/inputs :bm25-k1)}}
-                  :title {:type "string"}}}})
+                    :k1   (model/inputs :bm25-k1)}}}}})
     (cond
       (nil? corpus) nil
       :else

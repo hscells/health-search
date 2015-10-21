@@ -26,7 +26,7 @@
   "print the results from the serach nicely"
   [search-results]
   (dotimes [i (count (get search-results :scores))]
-    (println (nth (get search-results :scores) i) (nth (get search-results :titles) i) (nth (get search-results :ids) i))))
+    (println (nth (get search-results :scores) i) (nth (get search-results :ids) i))))
 
 (defn search
   "perform a basic search using query strings"
@@ -37,9 +37,8 @@
         n     (esrsp/total-hits res)
         hits  (esrsp/hits-from res)
         ids (map #(get % :_id) hits)
-        scores (map #(get % :_score) hits)
-        titles (map #(get (get % :title) :_source) hits)]
-    (hash-map :hits hits :scores scores :titles titles :ids ids)))
+        scores (map #(get % :_score) hits)]
+    (hash-map :hits hits :scores scores :ids ids)))
 
 (defn get-terms
   "given a set of terms from a set of documents from a search, return just the terms themselves and not the associated data"
@@ -126,7 +125,5 @@
         res       (esd/search conn (connection/config :index-name) "document" :query {:function_score {:query (q/query-string :query query :default_operator "OR") :functions cwq}} :size 20)
         hits      (esrsp/hits-from res)
         ids       (map #(get % :_id) hits)
-        scores    (map #(get % :_score) hits)
-        titles    (map #(get (get % :title) :_source) hits)]
-      (println cwq)
-      (hash-map :hits hits :scores scores :titles titles :ids ids)))
+        scores    (map #(get % :_score) hits)]
+      (hash-map :hits hits :scores scores :ids ids)))

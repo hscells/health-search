@@ -13,9 +13,15 @@
 (defn prob
   "calculate the probability of n gram x in terms n"
   ([x n]
-  (float (/ (count (filter #{x} n)) (count n))))
+    (cond
+      (zero? (count n)) 0.1
+      :else
+        (float (/ (count (filter #{x} n)) (count n)))))
   ([x y n]
-  (float (/ (+ (count (filter #{x} n)) (count (filter #{y} n))) (count n)))))
+    (cond
+      (zero? (count n)) 0.1
+      :else
+        (float (/ (+ (count (filter #{x} n)) (count (filter #{y} n))) (count n))))))
 
 (defn pmi
   "implementation of Pointwise Mututal Information"
