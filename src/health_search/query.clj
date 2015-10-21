@@ -33,7 +33,7 @@
   [query]
   (let [conn  (esr/connect (connection/config :host))
         res   (esd/search conn (connection/config :index-name) "document"
-          :query (q/query-string :query query :default_operator "OR" :size 20))
+          :query (q/query-string :query query :default_operator "OR") :size 20  )
         n     (esrsp/total-hits res)
         hits  (esrsp/hits-from res)
         ids (map #(get % :_id) hits)
