@@ -33,7 +33,7 @@
   [query]
   (let [conn  (esr/connect (connection/config :host))
         res   (esd/search conn (connection/config :index-name) "document"
-          :query (q/query-string :query query :default_operator "OR"))
+          :query (q/query-string :query query :default_operator "OR" :size 20))
         n     (esrsp/total-hits res)
         hits  (esrsp/hits-from res)
         ids (map #(get % :_id) hits)
@@ -119,6 +119,7 @@
 (defn cw-query
   "Perform a Concept Weighted query using a Boolean Query"
   [query]
+  (println "running cw-query for" query)
   (let [conn      (esr/connect (connection/config :host))
         doc-terms (get-document-terms query)
         cwq       (weight-query-term query doc-terms)
