@@ -36,8 +36,9 @@
   [a b n]
   (* (prob a b n) (pmi a b n)))
 
-;; Vocabulary related functions
+(def stopwords (into #{} (edn/read-string (slurp "data/stopwords.edn"))))
 
+;; Vocabulary related functions
 (def chv
   "access terms in the Consumer Health Vocabulary"
   (let [data (csv/read-csv (slurp "data/CHV_concepts_terms.tsv") :separator \tab)]

@@ -1,4 +1,4 @@
 {
   :host           "http://localhost:9200"
-  :index-name     "bananas"
+  :index-name     "grape"
 }

@@ -7,14 +7,19 @@
             [clojurewerkz.elastisch.query         :as q]
             [clojurewerkz.elastisch.rest.response :as esrsp]
             [clojure.string                       :as str]
+            [clojure.set                          :as set]
             [clojure.pprint                       :as pp]))
+
+(defn remove-words-from-sentence [sentence words]
+    (into [] (set/difference (into #{} sentence) words)))
 
 (defn expand-emim
   "query expansion function using Dice-coefficient"
   ([query-terms document-terms] (expand-emim query-terms document-terms query-terms))
   ([query-terms document-terms expanded-terms]
     (cond
-      (empty? query-terms) (distinct (flatten expanded-terms))
+      (empty? query-terms) (distinct (remove-words-from-sentence (flatten expanded-terms) model/stopwords))
+      (> (count expanded-terms) (model/inputs :max-terms)) (distinct (remove-words-from-sentence (flatten expanded-terms) model/stopwords))
       :else
         ; only append a term to the query when the two terms are dependent
         (recur (rest query-terms) document-terms
@@ -33,7 +38,7 @@
   [query]
   (let [conn  (esr/connect (connection/config :host))
         res   (esd/search conn (connection/config :index-name) "document"
-          :query (q/query-string :query query :default_operator "OR") :size 20  )
+          :query (q/query-string :query query :default_operator "OR") :size 5)
         n     (esrsp/total-hits res)
         hits  (esrsp/hits-from res)
         ids (map #(get % :_id) hits)
