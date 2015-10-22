@@ -79,20 +79,20 @@
            :char_filter  "html_strip"
            :filter       ["standard" "lowercase" "snowball"]}}) hits)
         documents (map #(get-terms %) (map #(get % :tokens) doc-source))
-        expanded-query (str/join " " (distinct (flatten (for [document documents :let [terms (expand-emim (str/split query #" ") (remove-words-from-sentence document model/stopwords))]] terms))))
+        expanded-query (distinct (flatten (for [document documents :let [terms (expand-emim (str/split query #" ") (remove-words-from-sentence document model/stopwords))]] terms)))
         medical-term (model/chv-term query)]
         ;; we have the list of terms which emim found were similar in similar documents
         ;; now we look up to see if the query is in the CHV, and if it is, replace it in the expanded query
         (cond
           ;; the query didn't get expanded but a medical replacement was found
-          (and (str/blank? expanded-query) (not (nil? medical-term))) (apply str [query medical-term])
+          (and (empty? expanded-query) (not (nil? medical-term))) (apply str [query medical-term])
           ;; there was no medical term replacement
-          (nil? medical-term) expanded-query
+          (nil? medical-term) (str/join #" " (remove-words-from-sentence expanded-query model/stopwords))
           ;; the query couldn't get expanded at all
-          (str/blank? expanded-query) query
+          (empty? expanded-query) (str/join #" " (remove-words-from-sentence query model/stopwords))
           :else
             ;; there was a medical term replacement and the query was expanded
-            (apply str [expanded-query medical-term]))))
+            (apply str (remove-words-from-sentence (flatten [expanded-query medical-term]) model/stopwords)))))
 
 (defn weight-query-binary
   "weight-query will take a query and weight it into two classes: KC (key concepts class) and NKC (non-key concepts class)"
