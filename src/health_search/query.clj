@@ -92,7 +92,7 @@
           (empty? expanded-query) (str/join #" " (remove-words-from-sentence query model/stopwords))
           :else
             ;; there was a medical term replacement and the query was expanded
-            (apply str (remove-words-from-sentence (flatten [expanded-query medical-term]) model/stopwords)))))
+            (str/join #" " (remove-words-from-sentence (flatten [expanded-query medical-term]) model/stopwords)))))
 
 (defn weight-query-binary
   "weight-query will take a query and weight it into two classes: KC (key concepts class) and NKC (non-key concepts class)"
