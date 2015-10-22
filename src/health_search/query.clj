@@ -19,7 +19,6 @@
   ([query-terms document-terms expanded-terms]
     (cond
       (empty? query-terms) (distinct (remove-words-from-sentence (flatten expanded-terms) model/stopwords))
-      (> (count expanded-terms) (model/inputs :max-terms)) (distinct (remove-words-from-sentence (flatten expanded-terms) model/stopwords))
       :else
         ; only append a term to the query when the two terms are dependent
         (recur (rest query-terms) document-terms
@@ -65,11 +64,12 @@
            :char_filter  "html_strip"
            :filter       ["standard" "lowercase" "snowball"]}}) hits)
         documents (map #(get-terms %) (map #(get % :tokens) doc-source))]
-      (remove-words-from-sentence (flatten documents) model/stopwords)))
+      (flatten documents)))
 
 (defn expand-query
-  "given a query, expand it using a combination of emim probability using documents from a standard search and a medica vocabulary"
+  "given a query, expand it using a combination of emim probability using documents from a standard search and a medical vocabulary"
   [query]
+  (println "expanding" query)
   (let [conn  (esr/connect (connection/config :host))
         results (search query)
         hits (get results :hits)
@@ -79,7 +79,7 @@
            :char_filter  "html_strip"
            :filter       ["standard" "lowercase" "snowball"]}}) hits)
         documents (map #(get-terms %) (map #(get % :tokens) doc-source))
-        expanded-query (str/join " " (distinct (flatten (for [document documents :let [terms (expand-emim (str/split query #" ") document)]] terms))))
+        expanded-query (str/join " " (distinct (flatten (for [document documents :let [terms (expand-emim (str/split query #" ") (remove-words-from-sentence document model/stopwords))]] terms))))
         medical-term (model/chv-term query)]
         ;; we have the list of terms which emim found were similar in similar documents
         ;; now we look up to see if the query is in the CHV, and if it is, replace it in the expanded query
@@ -99,7 +99,7 @@
   ([query document-terms] (weight-query-binary (str/split query #" ") query {:must [] :should [] :must_not []} document-terms))
   ([terms query mapping document-terms]
     (let [prob-cw (model/weight-concept (first terms) query document-terms)]
-      (println prob-cw (first terms))
+      ; (println prob-cw (first terms))
       (cond
         (empty? terms) mapping
         (zero? prob-cw)
@@ -114,7 +114,7 @@
   ([query document-terms] (weight-query-term (str/split query #" ") query [] document-terms))
   ([terms query mapping document-terms]
     (let [prob-cw (model/weight-concept (first terms) query document-terms)]
-      (println prob-cw (first terms))
+      ; (println prob-cw (first terms))
       (cond
         (empty? terms) mapping
         :else

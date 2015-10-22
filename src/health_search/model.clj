@@ -60,4 +60,4 @@
 (defn weight-concept
   "weight a concept inside a given query"
   [concept query document-terms]
-  (float (/ (* 100000 (/ (h_k concept document-terms) (reduce + (map #(h_k % document-terms) (str/split query #" "))))) 1000)))
+  (float (/ (* 10000 (/ (h_k concept document-terms) (reduce + (map #(h_k % document-terms) (str/split query #" "))))) 1000)))
