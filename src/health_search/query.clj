@@ -127,7 +127,7 @@
   (let [conn      (esr/connect (connection/config :host))
         doc-terms (get-document-terms query)
         cwq       (weight-query-term query doc-terms)
-        res       (esd/search conn (connection/config :index-name) "document" :query {:function_score {:query (q/query-string :query query :default_operator "OR") :functions cwq}} :size 20)
+        res       (esd/search conn (connection/config :index-name) "document" :query {:function_score {:query (q/query-string :query query :default_operator "OR") :functions cwq}} :size 1000)
         hits      (esrsp/hits-from res)
         ids       (map #(get % :_id) hits)
         scores    (map #(get % :_score) hits)]
