@@ -65,7 +65,7 @@
            :char_filter  "html_strip"
            :filter       ["standard" "lowercase" "snowball"]}}) hits)
         documents (map #(get-terms %) (map #(get % :tokens) doc-source))]
-      (flatten documents)))
+      (remove-words-from-sentence (flatten documents) model/stopwords)))
 
 (defn expand-query
   "given a query, expand it using a combination of emim probability using documents from a standard search and a medica vocabulary"
