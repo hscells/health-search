@@ -39,7 +39,7 @@
   [query]
   (let [conn  (esr/connect (connection/config :host))
         res   (esd/search conn (connection/config :index-name) "document"
-          :query (q/query-string :query query :default_operator "OR") :size 20)
+          :query (q/query-string :query query :default_operator "OR") :size 5)
         n     (esrsp/total-hits res)
         hits  (esrsp/hits-from res)
         ids (map #(get % :_id) hits)
@@ -84,8 +84,8 @@
         expanded-query (expand-func func (str/split query #" ") (subtract (flatten documents) model/stopwords))
         medical-term (model/chv-term query)]
         (println "expanded using" (count (subtract (flatten documents) model/stopwords)) "terms in" (count documents) "documents")
-        (println "expanded terms:" (take (+ 10 (count (str/split query #" "))) (sort-by val > expanded-query)))
-        (let [expanded-query (keys (into {} (take (+ 10 (count (str/split query #" "))) (sort-by val > expanded-query))))]
+        (println "expanded terms:" (take (+ 5 (count (str/split query #" "))) (sort-by val > expanded-query)))
+        (let [expanded-query (keys (into {} (take (+ 5 (count (str/split query #" "))) (sort-by val > expanded-query))))]
           (cond
             ;; the query didn't get expanded but a medical replacement was found
             (and (empty? expanded-query) (not (nil? medical-term))) (apply str [query medical-term])
