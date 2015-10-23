@@ -70,7 +70,7 @@
   [_ t n]
   (* (prob t n) (+ (log2 (/ (+ 1 (Pn t)) (Pn t))) (log2 (+ 1 (Pn t))))))
 
-(def stopwords (into #{} (edn/read-string (slurp "data/stopwords.edn"))))
+(def stopwords (into '() (edn/read-string (slurp "data/stopwords.edn"))))
 
 ;; Vocabulary related functions
 (def chv
