@@ -13,18 +13,27 @@
 (defn remove-words-from-sentence [sentence words]
     (into [] (set/difference (into #{} sentence) words)))
 
+(defn nil-or-zero?
+  [n]
+  (cond
+    (nil? n) 0
+    :else n))
+
 (defn expand-emim
   "query expansion function using Dice-coefficient"
-  ([query-terms document-terms] (expand-emim query-terms document-terms query-terms))
+  ([query-terms document-terms] (expand-emim query-terms document-terms (apply merge (map #(hash-map % 1) query-terms))))
   ([query-terms document-terms expanded-terms]
     (cond
-      (empty? query-terms) (distinct (remove-words-from-sentence (flatten expanded-terms) model/stopwords))
+      (empty? query-terms) expanded-terms
       :else
         ; only append a term to the query when the two terms are dependent
         (recur (rest query-terms) document-terms
           ; use the emim formula to filter terms above the emim-prob value
-          (conj expanded-terms
-            (for [term document-terms :let [expand-term term] :when (> (model/emim (first query-terms) term document-terms) (model/inputs :emim-prob))] expand-term))))))
+          (into expanded-terms (apply merge
+            (for [term document-terms
+             :let [expand-term {term (model/emim (first query-terms) term document-terms)}]
+             :when (> (model/emim (first query-terms) term document-terms) (nil-or-zero? (get expanded-terms term)))]
+            expand-term)))))))
 
 (defn print-search
   "print the results from the serach nicely"
@@ -79,20 +88,21 @@
            :char_filter  "html_strip"
            :filter       ["standard" "lowercase" "snowball"]}}) hits)
         documents (map #(get-terms %) (map #(get % :tokens) doc-source))
-        expanded-query (distinct (flatten (for [document documents :let [terms (expand-emim (str/split query #" ") (remove-words-from-sentence document model/stopwords))]] terms)))
+        expanded-query (expand-emim (str/split query #" ") (remove-words-from-sentence (flatten (distinct documents)) model/stopwords))
         medical-term (model/chv-term query)]
-        ;; we have the list of terms which emim found were similar in similar documents
-        ;; now we look up to see if the query is in the CHV, and if it is, replace it in the expanded query
-        (cond
-          ;; the query didn't get expanded but a medical replacement was found
-          (and (empty? expanded-query) (not (nil? medical-term))) (apply str [query medical-term])
-          ;; there was no medical term replacement
-          (nil? medical-term) (str/join #" " (remove-words-from-sentence expanded-query model/stopwords))
-          ;; the query couldn't get expanded at all
-          (empty? expanded-query) (str/join #" " (remove-words-from-sentence query model/stopwords))
-          :else
-            ;; there was a medical term replacement and the query was expanded
-            (str/join #" " (remove-words-from-sentence (flatten [expanded-query medical-term]) model/stopwords)))))
+        (println "expanded using" (count (remove-words-from-sentence (flatten (distinct documents)) model/stopwords)) "terms in" (count documents) "documents")
+        ;; take the 10 best terms from the expanded query
+        (let [expanded-query (keys (into {} (take 10 (sort-by val > expanded-query))))]
+          (cond
+            ;; the query didn't get expanded but a medical replacement was found
+            (and (empty? expanded-query) (not (nil? medical-term))) (apply str [query medical-term])
+            ;; there was no medical term replacement
+            (nil? medical-term) (str/join #" " expanded-query)
+            ;; the query couldn't get expanded at all
+            (empty? expanded-query) query
+            :else
+              ;; there was a medical term replacement and the query was expanded
+              (str/join #" " (flatten [expanded-query medical-term]))))))
 
 (defn weight-query-binary
   "weight-query will take a query and weight it into two classes: KC (key concepts class) and NKC (non-key concepts class)"

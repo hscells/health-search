@@ -34,6 +34,6 @@
           ; "query" (apply query/print-search (query/search (first options)))
           ; "query" (println (query/expanded-search (first options)))
           ; "query" (query/print-search (query/search (query/expand-query (first options))))
-          "query" (query/print-search (query/cw-query (query/expand-query (first options))))
+          "query" (query/print-search (query/search (query/expand-query (first options))))
           "bulk-query" (queryeval/search (first options) (second options))
           (exit 1 usage)))))
