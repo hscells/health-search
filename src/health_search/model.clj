@@ -67,7 +67,7 @@
   (/ (tfc-memoize t) N))
 
 (defn bo1
-  [t _ n]
+  [_ t n]
   (* (prob t n) (+ (log2 (/ (+ 1 (Pn t)) (Pn t))) (log2 (+ 1 (Pn t))))))
 
 (def stopwords (into #{} (edn/read-string (slurp "data/stopwords.edn"))))

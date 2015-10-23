@@ -81,7 +81,7 @@
            :char_filter  "html_strip"
            :filter       ["standard" "lowercase" "snowball"]}}) hits)
         documents (map #(get-terms %) (map #(get % :tokens) doc-source))
-        expanded-query (expand-func func (str/split query #" ") (remove-words-from-sentence (flatten (distinct documents)) model/stopwords))
+        expanded-query (expand-func func (str/split query #" ") (flatten documents))
         medical-term (model/chv-term query)]
         (println "expanded using" (count (remove-words-from-sentence (flatten (distinct documents)) model/stopwords)) "terms in" (count documents) "documents")
         ;; take the 10 best terms from the expanded query
