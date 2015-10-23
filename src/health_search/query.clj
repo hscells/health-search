@@ -36,10 +36,10 @@
 
 (defn search
   "perform a basic search using query strings"
-  [query]
+  [query & {:keys [docs] :or {docs 1000}}]
   (let [conn  (esr/connect (connection/config :host))
         res   (esd/search conn (connection/config :index-name) "document"
-          :query (q/query-string :query query :default_operator "OR") :size 5)
+          :query (q/query-string :query query :default_operator "OR") :size docs)
         n     (esrsp/total-hits res)
         hits  (esrsp/hits-from res)
         ids (map #(get % :_id) hits)
@@ -73,7 +73,7 @@
   [func query]
   (println "expanding" query)
   (let [conn  (esr/connect (connection/config :host))
-        results (search query)
+        results (search query :docs 5)
         hits (get results :hits)
         doc-source (map #(esd/analyze conn (get (get % :_source) :text) :analyzer {:custom_health {
            :type         "custom"
