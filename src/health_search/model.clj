@@ -57,6 +57,7 @@
   (let [conn  (esr/connect (connection/config :host))
         res   (esd/search conn (connection/config :index-name) "document"
           :query (q/term :text term)
+          :size 1
           :aggs {:tf {:terms {:field :text}}})]
       (nil-or-zero? (get (apply merge (map #(hash-map (first %) (second %)) (map #(list (second (first %)) (second (second %))) (get (get (get res :aggregations) :tf) :buckets)))) term))))
 (def tfc-memoize (memoize tfc))
