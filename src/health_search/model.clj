@@ -56,7 +56,10 @@
   "get the tf value for a term in the index"
   (let [conn  (esr/connect (connection/config :host))
         res   (esd/count conn (connection/config :index-name) "document" (q/term :text term))]
-      (get res :count)))
+      (let [c (get res :count)]
+        (cond
+          (zero? c) 0.1
+          :else c))))
 (def tfc-memoize (memoize tfc))
 
 (defn Pn
