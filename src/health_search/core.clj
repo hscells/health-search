@@ -4,6 +4,7 @@
   (:require [health-search.index        :as index]
             [health-search.query        :as query]
             [health-search.queryeval    :as queryeval]
+            [health-search.model        :as model]
             [clojure.string             :as string]))
 
 (def usage
@@ -34,6 +35,7 @@
           ; "query" (apply query/print-search (query/search (first options)))
           ; "query" (println (query/expanded-search (first options)))
           ; "query" (query/print-search (query/search (query/expand-query (first options))))
-          "query" (query/print-search (query/search (query/expand-query (first options))))
+          "query" (query/print-search (query/search (query/expand-query model/bo1 (first options))))
+          ; "query" (query/get-tf (first options))
           "bulk-query" (queryeval/search (first options) (second options))
           (exit 1 usage)))))

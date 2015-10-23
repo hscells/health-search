@@ -1,8 +1,12 @@
 (ns health-search.model
   "Provide statistical and vocabulary functions relating to the models used in the application"
-  (:require [clojure.edn        :as edn]
-            [clojure.string     :as str]
-            [clojure.data.csv   :as csv]))
+  (:require [clojure.edn                          :as edn]
+            [clojure.string                       :as str]
+            [clojure.data.csv                     :as csv]
+            [clojurewerkz.elastisch.rest          :as esr]
+            [clojurewerkz.elastisch.rest.document :as esd]
+            [clojurewerkz.elastisch.query         :as q]
+            [health-search.connection             :as connection]))
 
 ;; inputs used to tune the models
 (def inputs
@@ -27,7 +31,7 @@
   "implementation of Pointwise Mututal Information"
   [a b n]
   (cond
-    (zero? (* (prob a n) (prob b n))) 0
+    (zero? (* (prob a n) (prob b n))) 0.1
     :else
     (Math/log (/ (prob a b n) (* (prob a n) (prob b n))))))
 
@@ -35,6 +39,35 @@
   "implementation of Expected Mutual Information Measure"
   [a b n]
   (* (prob a b n) (pmi a b n)))
+
+(defn log2 [n]
+  (/ (Math/log n) (Math/log 2)))
+
+  (defn nil-or-zero?
+    [n]
+    (cond
+      (nil? n) 0.000000000000001
+      :else n))
+
+(def N (inputs :N))
+
+(defn tfc
+  [term]
+  "get the tf value for a term in the index"
+  (let [conn  (esr/connect (connection/config :host))
+        res   (esd/search conn (connection/config :index-name) "document"
+          :query (q/term :text term)
+          :aggs {:tf {:terms {:field :text}}})]
+      (nil-or-zero? (get (apply merge (map #(hash-map (first %) (second %)) (map #(list (second (first %)) (second (second %))) (get (get (get res :aggregations) :tf) :buckets)))) term))))
+(def tfc-memoize (memoize tfc))
+
+(defn Pn
+  [t]
+  (/ (tfc-memoize t) N))
+
+(defn bo1
+  [t _ n]
+  (* (prob t n) (+ (log2 (/ (+ 1 (Pn t)) (Pn t))) (log2 (+ 1 (Pn t))))))
 
 (def stopwords (into #{} (edn/read-string (slurp "data/stopwords.edn"))))
 

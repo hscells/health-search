@@ -13,26 +13,19 @@
 (defn remove-words-from-sentence [sentence words]
     (into [] (set/difference (into #{} sentence) words)))
 
-(defn nil-or-zero?
-  [n]
-  (cond
-    (nil? n) 0
-    :else n))
-
-(defn expand-emim
+(defn expand-func
   "query expansion function using Dice-coefficient"
-  ([query-terms document-terms] (expand-emim query-terms document-terms (apply merge (map #(hash-map % 1) query-terms))))
-  ([query-terms document-terms expanded-terms]
+  ([func query-terms document-terms] (expand-func func query-terms document-terms (apply merge (map #(hash-map % 1) query-terms))))
+  ([func query-terms document-terms expanded-terms]
     (cond
       (empty? query-terms) expanded-terms
       :else
         ; only append a term to the query when the two terms are dependent
-        (recur (rest query-terms) document-terms
-          ; use the emim formula to filter terms above the emim-prob value
+        (recur func (rest query-terms) document-terms
           (into expanded-terms (apply merge
             (for [term document-terms
-             :let [expand-term {term (model/emim (first query-terms) term document-terms)}]
-             :when (> (model/emim (first query-terms) term document-terms) (nil-or-zero? (get expanded-terms term)))]
+             :let [expand-term {term (func (first query-terms) term document-terms)}]
+             :when (> (func (first query-terms) term document-terms) (model/nil-or-zero? (get expanded-terms term)))]
             expand-term)))))))
 
 (defn print-search
@@ -76,8 +69,8 @@
       (flatten documents)))
 
 (defn expand-query
-  "given a query, expand it using a combination of emim probability using documents from a standard search and a medical vocabulary"
-  [query]
+  "given a query, expand it using a combination of <func> probability using documents from a standard search and a medical vocabulary"
+  [func query]
   (println "expanding" query)
   (let [conn  (esr/connect (connection/config :host))
         results (search query)
@@ -88,10 +81,11 @@
            :char_filter  "html_strip"
            :filter       ["standard" "lowercase" "snowball"]}}) hits)
         documents (map #(get-terms %) (map #(get % :tokens) doc-source))
-        expanded-query (expand-emim (str/split query #" ") (remove-words-from-sentence (flatten (distinct documents)) model/stopwords))
+        expanded-query (expand-func func (str/split query #" ") (remove-words-from-sentence (flatten (distinct documents)) model/stopwords))
         medical-term (model/chv-term query)]
         (println "expanded using" (count (remove-words-from-sentence (flatten (distinct documents)) model/stopwords)) "terms in" (count documents) "documents")
         ;; take the 10 best terms from the expanded query
+        (println "expanded terms:" (take 10 (sort-by val > expanded-query)))
         (let [expanded-query (keys (into {} (take 10 (sort-by val > expanded-query))))]
           (cond
             ;; the query didn't get expanded but a medical replacement was found

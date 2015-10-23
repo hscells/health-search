@@ -2,7 +2,8 @@
   "Used to generate a results file compaitble with trec_eval"
   (:require [clojure.string       :as str]
             [clojure.edn          :as edn]
-            [health-search.query  :as query]))
+            [health-search.query  :as query]
+            [health-search.model  :as model]))
 
 (defn create-results-file
   "Create the results file needed for trec_eval to evaluate"
@@ -20,7 +21,7 @@
       :else
       (recur
         (rest data)
-        (conj hits (map #(hash-map :query (key (first data)) :id (get % :_id) :relevance (get % :_score)) (get (query/cw-query (query/expand-query (val (first data)))) :hits)))))))
+        (conj hits (map #(hash-map :query (key (first data)) :id (get % :_id) :relevance (get % :_score)) (get (query/cw-query (query/expand-query model/bo1 (val (first data)))) :hits)))))))
 
 (defn search
   "Performs a bulk search on input and outputs the results in output, or results.dat if none specified"
