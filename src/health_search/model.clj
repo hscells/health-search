@@ -89,9 +89,9 @@
   "The function h_k which indicates the `confidence` that concept c_i belongs to class KC
   For now, it just uses log normalised tf."
   [c_i document-terms]
-    (Math/log (+ 1 (prob c_i document-terms))))
+    (Math/log (+ 1 (/ (prob c_i document-terms) (tfc c_i)))))
 
 (defn weight-concept
   "weight a concept inside a given query"
   [concept query document-terms]
-  (float (/ (* 10000 (/ (h_k concept document-terms) (reduce + (map #(h_k % document-terms) (str/split query #" "))))) 1000)))
+  (float (/ (h_k concept document-terms) (reduce + (pmap #(h_k % document-terms) (str/split query #" "))))))

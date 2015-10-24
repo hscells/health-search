@@ -80,7 +80,7 @@
            :tokenizer    "standard"
            :char_filter  "html_strip"
            :filter       ["standard" "lowercase" "snowball"]}}) hits)
-        documents (map #(get-terms %) (map #(get % :tokens) doc-source))
+        documents (pmap #(get-terms %) (map #(get % :tokens) doc-source))
         expanded-query (expand-func func (str/split query #" ") (subtract (flatten documents) model/stopwords))
         medical-term (model/chv-term query)]
         (println "expanded using" (count (subtract (flatten documents) model/stopwords)) "terms in" (count documents) "documents")
