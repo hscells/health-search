@@ -21,7 +21,7 @@
       :else
       (recur
         (rest data)
-        (conj hits (map #(hash-map :query (key (first data)) :id (get % :_id) :relevance (get % :_score)) (get (query/search (query/expand-query model/emim (val (first data)))) :hits)))))))
+        (conj hits (map #(hash-map :query (key (first data)) :id (get % :_id) :relevance (get % :_score)) (get (query/search (query/expand-query model/bo1 (val (first data)))) :hits)))))))
 
 (defn search
   "Performs a bulk search on input and outputs the results in output, or results.dat if none specified"
