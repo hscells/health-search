@@ -43,11 +43,12 @@
 (defn log2 [n]
   (/ (Math/log n) (Math/log 2)))
 
-  (defn nil-or-zero?
-    [n]
-    (cond
-      (nil? n) 0.000000000000001
-      :else n))
+(defn nil-or-zero?
+  "if nil, return number very close to zero, otherwise the number"
+  [n]
+  (cond
+    (nil? n) 0.000000000000001
+    :else n))
 
 (def N (inputs :N))
 
@@ -63,10 +64,12 @@
 (def tfc-memoize (memoize tfc))
 
 (defn Pn
+  "used to calculate a value used in bo1"
   [t]
   (/ (tfc-memoize t) N))
 
 (defn bo1
+  "implementation of Bose-Einstein 1 model"
   [_ t n]
   (* (prob t n) (+ (log2 (/ (+ 1 (Pn t)) (Pn t))) (log2 (+ 1 (Pn t))))))
 

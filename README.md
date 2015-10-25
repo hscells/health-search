@@ -10,14 +10,14 @@ Once elasticsearch is installed, edit `elasticserach.yml` and configure `http.ma
 
 ## Usage
 
-    $ java -jar health-search-0.1.0-standalone.jar [action] [options]
+    $ java -jar health-search-1.0.jar [action] [options]
 
 ## Options
 
 ```
 index        [path to document collection]
 query        [search term]
-bulk-query   [input queries] [optional output file]
+bulk-query   [input queries] [output file]
 ```
 
 ## License

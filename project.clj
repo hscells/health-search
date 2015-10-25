@@ -1,6 +1,6 @@
-(defproject health-search "0.1.0-SNAPSHOT"
-  :description "FIXME: write description"
-  :url "http://example.com/FIXME"
+(defproject health-search "1.0"
+  :description "A health-based search engine"
+  :url "https://github.com/hscells/health-search"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.6.0"]

@@ -15,9 +15,9 @@
         "Actions:"
         "  index        Index a corpus"
         "  query        Query for a string"
-        "  bulk-query   Use a file for input as the search and produce a file with qrel output"
+        "  bulk-query   Use a file for input as the search and produce a file with trec output"
         ""
-        "Please refer to the manual page for more information."]
+        "Please refer to the README for more information."]
        (string/join \newline)))
 
 (defn exit [status msg]
@@ -32,10 +32,6 @@
       (let [arg (first args) options (rest args)]
         (case arg
           "index" (index/index-collection options)
-          ; "query" (apply query/print-search (query/search (first options)))
-          ; "query" (println (query/expanded-search (first options)))
-          ; "query" (query/print-search (query/search (query/expand-query (first options))))
           "query" (query/print-search (query/search (query/expand-query model/bo1 (first options))))
-          ; "query" (query/get-tf (first options))
           "bulk-query" (queryeval/search (first options) (second options))
           (exit 1 usage)))))

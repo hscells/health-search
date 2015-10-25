@@ -11,6 +11,7 @@
             [clojure.pprint                       :as pp]))
 
 (defn subtract [a b]
+  "return a list of a with elements from b removed (maintains duplicate elements)"
   (remove (into #{} b) a))
 
 (defn expand-func
@@ -56,6 +57,7 @@
         (recur (rest document-terms) (conj terms (get (first document-terms) :token))))))
 
 (defn get-document-terms
+  "given a query, return a single list of terms in those documents"
   [query]
   (let [conn  (esr/connect (connection/config :host))
         results (search query)

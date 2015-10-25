@@ -24,8 +24,8 @@
         (conj hits (pmap #(hash-map :query (key (first data)) :id (get % :_id) :relevance (get % :_score)) (get (query/search (query/expand-query model/bo1 (val (first data)))) :hits)))))))
 
 (defn search
-  "Performs a bulk search on input and outputs the results in output, or results.dat if none specified"
-  ([input] (search input "results.dat"))
+  "Performs a bulk search on input and outputs the results in output, or results.txt if none specified"
+  ([input] (search input "results.txt"))
   ([input output]
     (spit output "")
       (doseq [query-result (bulk-search input)]
